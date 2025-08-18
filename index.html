@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tasklio – Automate Workflows in Google Workspace</title>
+  <meta name="description" content="Tasklio is a modern automation engine for Google Workspace. Build custom workflows for ATS, HRIS, Payroll and beyond using Logic, Input, Output — fast, clean, scalable." />
+  <meta name="keywords" content="Tasklio, automation, Google Workspace, Apps Script, ATS, HRIS, Payroll, workflow automation" />
+  <meta name="author" content="Tasklio" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Tasklio – Automate Workflows in Google Workspace" />
+  <meta property="og:description" content="Automate ATS, HRIS, Payroll, and any workflow with Tasklio. Customizable, fast, and scalable inside Google Workspace." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/og-tasklio.png" />
+  <meta property="og:url" content="https://tasklio.io" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tasklio – Automate Workflows in Google Workspace" />
+  <meta name="twitter:description" content="Automate ATS, HRIS, Payroll, and any workflow with Tasklio." />
+  <meta name="twitter:image" content="assets/og-tasklio.png" />
+
+  <link rel="icon" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b1020;           /* deep space */
+      --panel:#0f162f;        /* card bg */
+      --text:#eef2ff;         /* primary text */
+      --muted:#a9b0c6;        /* muted text */
+      --brand-1:#21d4fd;      /* gradient start */
+      --brand-2:#b721ff;      /* gradient end */
+      --accent:#3df0b7;       /* success/cta accent */
+      --warn:#ffb020;
+      --danger:#ff5977;
+      --ring: 0 0 0 8px rgba(183,33,255,.08);
+      --radius-xl: 18px;
+      --radius-2xl: 28px;
+      --shadow-lg: 0 20px 45px rgba(0,0,0,.45);
+      --shadow-md: 0 10px 24px rgba(0,0,0,.35);
+      --shadow-sm: 0 6px 16px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(183,33,255,.18), transparent 60%),
+                 radial-gradient(800px 500px at 110% 10%, rgba(33,212,253,.16), transparent 60%),
+                 var(--bg);
+      line-height:1.5;
+    }
+    a{color:inherit;text-decoration:none}
+    .container{width:min(1200px, 92%); margin:0 auto}
+
+    /* Brand gradient utility */
+    .g{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));}
+    .text-g{background:linear-gradient(135deg,var(--brand-1),var(--brand-2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+    .btn{display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 1.15rem;border-radius:14px;font-weight:650;letter-spacing:.2px;border:1px solid rgba(255,255,255,.08);transition:.2s;backdrop-filter:saturate(140%) blur(4px)}
+    .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+    .btn.primary{background:linear-gradient(135deg,var(--brand-1),var(--brand-2)); color:#020617; font-weight:800}
+    .btn.ghost{background:rgba(255,255,255,.06)}
+
+    header.nav{
+      position:sticky; top:0; z-index:50; backdrop-filter: blur(12px) saturate(140%);
+      background:linear-gradient(180deg, rgba(11,16,32,.85), rgba(11,16,32,.55));
+      border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .brand{display:flex;align-items:center;gap:.9rem}
+    /* Logo fitting for nav */
+    .tasklio-logo-nav {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+    .wordmark{font-weight:900;font-size:1.05rem;letter-spacing:.6px}
+    .wordmark span{opacity:.9}
+    .wordmark .emph{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+    .hero{padding:90px 0 40px}
+    .hero-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:36px;align-items:center}
+    .badge{display:inline-flex;gap:.6rem;align-items:center;padding:.4rem .65rem;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.82rem;color:var(--muted)}
+    h1{font-size: clamp(2.2rem, 4vw, 3.2rem);line-height:1.1;margin:12px 0 10px}
+    .lead{font-size:1.05rem;color:#c7cbe0;max-width:60ch}
+    .cta-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+    .stat{padding:16px;border:1px solid rgba(255,255,255,.06);border-radius:16px;background:rgba(255,255,255,.04)}
+    .stat strong{font-size:1.6rem}
+
+    .card{background:var(--panel); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius-2xl); box-shadow:var(--shadow-md)}
+    .card.pad{padding:26px}
+
+    .section{padding:78px 0}
+    .section h2{font-size: clamp(1.6rem, 3.2vw, 2.4rem); margin:0 0 10px}
+    .muted{color:var(--muted)}
+
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    @media (max-width: 980px){
+      .hero-grid{grid-template-columns:1fr}
+      .grid-3{grid-template-columns:1fr 1fr}
+      .grid-4{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 640px){
+      .grid-3,.grid-4{grid-template-columns:1fr}
+    }
+
+    .feature{padding:20px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08)}
+    .feature h3{margin:10px 0 6px}
+    .feature p{margin:0;color:#cbd0e6}
+
+    .pill{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;padding:.35rem .6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.78rem;color:#d4d8eb}
+
+    .products .item{display:flex;flex-direction:column;gap:10px}
+    .products .item header{display:flex;align-items:center;justify-content:space-between}
+
+    .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .tier{padding:26px;border-radius:22px;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08)}
+    .price{font-size:2rem;font-weight:800}
+
+    .logos{display:flex;flex-wrap:wrap;gap:22px;opacity:.9}
+    .logos img{height:28px;opacity:.85;filter:grayscale(1);}
+
+    .faq details{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px;background:rgba(255,255,255,.04)}
+    .faq details+details{margin-top:10px}
+    .faq summary{cursor:pointer;font-weight:600}
+
+    .contact form{display:grid;gap:12px}
+    .contact input,.contact textarea, .contact select{
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:var(--text);
+      padding:12px 14px; border-radius:12px; outline:none
+    }
+    .contact input:focus,.contact textarea:focus, .contact select:focus{box-shadow:var(--ring); border-color:rgba(183,33,255,.35)}
+
+    footer{padding:40px 0;color:#9aa2bd;border-top:1px solid rgba(255,255,255,.06)}
+    .footgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:22px}
+    .footgrid a{display:block;margin:6px 0;color:#b3bad5}
+    @media (max-width: 900px){.footgrid{grid-template-columns:1fr 1fr}}
+    @media (max-width: 640px){.footgrid{grid-template-columns:1fr}}
+
+    .tiny{font-size:.8rem;color:#9aa2bd}
+  </style>
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Tasklio",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Automation engine for Google Workspace with modules for ATS, HRIS, Payroll, and custom workflows.",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "publisher": {"@type": "Organization", "name": "Tasklio"}
+  }
+  </script>
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="#" class="brand" aria-label="Tasklio" style="gap:0.6rem;">
+        <!-- BEGIN TASKLIO SVG LOGO -->
+        <span style="display:block;">
+        <svg width="180" height="40" viewBox="180 15 280 60" class="tasklio-logo-nav" xmlns="http://www.w3.org/2000/svg" aria-label="Tasklio logo">
+          <defs>
+              <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:1" />
+                  <stop offset="50%" style="stop-color:#3B82F6;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+              </linearGradient>
+              <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#1E293B;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+              </linearGradient>
+          </defs>
+          
+          <!-- White rounded background for visibility -->
+          <rect x="145" y="15" width="240" height="60" rx="8" ry="8" fill="white" opacity="0.95" stroke="#E5E7EB" stroke-width="1"/>
+          
+          <!-- Icon (moved up to align with text) -->
+          <g transform="translate(160, 5)">
+              <!-- Main transformation symbol -->
+              <path d="M 35 20 L 55 30 L 55 50 L 35 60 L 15 50 L 15 30 Z" 
+                    fill="none" stroke="url(#iconGradient)" stroke-width="3" opacity="0.8"/>
+              
+              <!-- Input triangle -->
+              <path d="M 8 35 L 25 25 L 25 45 Z" fill="url(#iconGradient)" opacity="0.9"/>
+              
+              <!-- Processing flow -->
+              <line x1="25" y1="35" x2="35" y2="35" stroke="url(#iconGradient)" stroke-width="2"/>
+              
+              <!-- Output circle -->
+              <circle cx="62" cy="35" r="8" fill="url(#iconGradient)" opacity="0.9"/>
+              
+              <!-- Flow to output -->
+              <line x1="55" y1="35" x2="54" y2="35" stroke="url(#iconGradient)" stroke-width="2"/>
+              
+              <!-- Central processor -->
+              <circle cx="35" cy="35" r="3" fill="#00E5FF" opacity="0.8"/>
+          </g>
+          
+          <!-- Company name (centered) -->
+          <text x="245" y="52" font-family="Arial, sans-serif" font-size="24" font-weight="800" 
+                fill="#1E293B">TASK</text>
+          <rect x="315" y="46" width="8" height="2" fill="url(#iconGradient)" rx="1"/>
+          <text x="330" y="52" font-family="Arial, sans-serif" font-size="24" font-weight="800" 
+                fill="url(#iconGradient)">LIO</text>
+        </svg>
+        </span>
+        <!-- END TASKLIO SVG LOGO -->
+      </a>
+      <nav aria-label="Primary Navigation" class="tiny">
+        <a href="#products">Products</a> &nbsp;•&nbsp;
+        <a href="#features">Features</a> &nbsp;•&nbsp;
+        <a href="#pricing">Pricing</a> &nbsp;•&nbsp;
+        <a href="#faq">FAQ</a> &nbsp;•&nbsp;
+        <a href="#contact" class="btn primary" style="padding:.6rem 1rem">Get a Demo</a>
+      </nav>
+    </div>
+  </header>
+  <!-- HERO ... and rest remains unchanged ... -->
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="badge">Automation inside Google Workspace</div>
+        <h1>Turn <span class="text-g">Tasks</span> into <span class="text-g">Intelligent Workflows</span></h1>
+        <p class="lead">Tasklio is a modern automation engine for Google Workspace. Build custom flows across Sheets, Gmail, Docs, Drive, and Calendar using your logic — <strong>Logic, Input, Output</strong>. Launch ATS, HRIS, Payroll and any workflow in days, not months.</p>
+        <div class="cta-row">
+          <a href="#contact" class="btn primary">Book Live Demo</a>
+          <a href="#products" class="btn ghost">Explore Products</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="tiny">Time saved / month</div><strong>140–280 hrs</strong></div>
+          <div class="stat"><div class="tiny">Payback period</div><strong>≤ 6.14 yrs</strong></div>
+          <div class="stat"><div class="tiny">ROI</div><strong>17%</strong></div>
+        </div>
+      </div>
+      <div>
+        <div class="card pad">
+          <div class="tiny" style="opacity:.85">Flow preview</div>
+          <svg viewBox="0 0 800 420" role="img" aria-label="Automation flow diagram" style="width:100%;height:auto;border-radius:16px;display:block;background:linear-gradient(135deg, rgba(33,212,253,.12), rgba(183,33,255,.12))">
+            <!-- Nodes -->
+            <g fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2">
+              <rect x="48" y="46" rx="12" width="160" height="70" fill="rgba(255,255,255,.06)" />
+              <rect x="320" y="46" rx="12" width="160" height="70" fill="rgba(255,255,255,.06)" />
+              <rect x="592" y="46" rx="12" width="160" height="70" fill="rgba(255,255,255,.06)" />
+              <rect x="180" y="180" rx="12" width="160" height="70" fill="rgba(255,255,255,.06)" />
+              <rect x="452" y="180" rx="12" width="160" height="70" fill="rgba(255,255,255,.06)" />
+              <rect x="320" y="314" rx="12" width="160" height="70" fill="rgba(255,255,255,.06)" />
+              <!-- connectors -->
+              <path d="M208 116 C 260 160, 280 160, 340 116" />
+              <path d="M480 116 C 540 160, 560 160, 612 116" />
+              <path d="M400 116 C 400 116, 400 156, 400 180" />
+              <path d="M260 250 C 320 290, 350 290, 400 314" />
+              <path d="M540 250 C 480 290, 450 290, 400 314" />
+            </g>
+            <!-- Labels -->
+            <g fill="#e5e9ff" font-family="Inter" font-weight="600">
+              <text x="70" y="90">Google Form</text>
+              <text x="352" y="90">ATS Parser</text>
+              <text x="634" y="90">Sheet Records</text>
+              <text x="210" y="224">HRIS Rules</text>
+              <text x="490" y="224">Payroll Calc</text>
+              <text x="346" y="356">Email & PDF</text>
+            </g>
+          </svg>
+          <div class="tiny" style="margin-top:10px;color:#c7cbe0">Example: Candidate applies → parsed → records updated → HRIS updates → payroll proration → email & PDF generated.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT SUITE ... and rest of your content remains unchanged ... -->
+
+  <!-- PRODUCT SUITE -->
+  <!-- ... (keep your previously provided HTML for the rest of the site) ... -->
+
+  <!-- At the end, update the footer brand as well for consistency: -->
+  <footer>
+    <div class="container footgrid">
+      <div>
+        <div class="brand">
+          <span style="display:block;">
+          <svg width="180" height="40" viewBox="180 15 280 60" class="tasklio-logo-nav" xmlns="http://www.w3.org/2000/svg" aria-label="Tasklio logo">
+            <defs>
+                <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#3B82F6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#1E293B;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <rect x="145" y="15" width="240" height="60" rx="8" ry="8" fill="white" opacity="0.95" stroke="#E5E7EB" stroke-width="1"/>
+            <g transform="translate(160, 5)">
+                <path d="M 35 20 L 55 30 L 55 50 L 35 60 L 15 50 L 15 30 Z" 
+                      fill="none" stroke="url(#iconGradient)" stroke-width="3" opacity="0.8"/>
+                <path d="M 8 35 L 25 25 L 25 45 Z" fill="url(#iconGradient)" opacity="0.9"/>
+                <line x1="25" y1="35" x2="35" y2="35" stroke="url(#iconGradient)" stroke-width="2"/>
+                <circle cx="62" cy="35" r="8" fill="url(#iconGradient)" opacity="0.9"/>
+                <line x1="55" y1="35" x2="54" y2="35" stroke="url(#iconGradient)" stroke-width="2"/>
+                <circle cx="35" cy="35" r="3" fill="#00E5FF" opacity="0.8"/>
+            </g>
+            <text x="245" y="52" font-family="Arial, sans-serif" font-size="24" font-weight="800" 
+                  fill="#1E293B">TASK</text>
+            <rect x="315" y="46" width="8" height="2" fill="url(#iconGradient)" rx="1"/>
+            <text x="330" y="52" font-family="Arial, sans-serif" font-size="24" font-weight="800" 
+                  fill="url(#iconGradient)">LIO</text>
+          </svg>
+          </span>
+        </div>
+        <p class="tiny">Tasks → Logic → Input → Output. Automation that lives where you work.</p>
+      </div>
+      <div>
+        <strong>Product</strong>
+        <a href="#products">ATS</a>
+        <a href="#products">HRIS</a>
+        <a href="#products">Payroll</a>
+        <a href="#features">Workflow Builder</a>
+      </div>
+      <div>
+        <strong>Company</strong>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Blog</a>
+      </div>
+      <div>
+        <strong>Resources</strong>
+        <a href="#faq">FAQ</a>
+        <a href="#">Docs</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="container tiny" style="margin-top:16px">© <span id="year"></span> Tasklio. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // Dynamic year
+    document.getElementById('year').textContent = new Date().getFullYear()
+
+    // Contact form handler — send to Google Apps Script Web App endpoint
+    // 1) Create an Apps Script Web App that writes to a Google Sheet.
+    // 2) Deploy and replace ENDPOINT below with your URL (exec).
+    const ENDPOINT = 'https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec'
+
+    const form = document.getElementById('contactForm')
+    const note = document.getElementById('formNote')
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault()
+      note.textContent = 'Sending…'
+      const data = Object.fromEntries(new FormData(form))
+      try{
+        const res = await fetch(ENDPOINT, {method:'POST', mode:'no-cors', body: JSON.stringify(data)})
+        // With no-cors we optimistically assume success
+        note.textContent = 'Thanks! We\'ll reach out shortly.'
+        form.reset()
+      }catch(err){
+        console.error(err)
+        note.textContent = 'There was an error. Please email hello@tasklio.io.'
+      }
+    })
+  </script>
+</body>
+</html>
